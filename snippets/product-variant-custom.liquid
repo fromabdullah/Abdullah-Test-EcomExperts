@@ -1,0 +1,121 @@
+{% comment %}
+  Renders product variant options for colors in swatches form
+
+  Accepts:
+  - product: {Object} product object.
+  - option: {Object} current product_option object.
+  - block: {Object} block object.
+
+
+  Usage:
+  {% render 'product-variant-options',
+    product: product,
+    option: option,
+    block: block
+  %}
+{% endcomment %}
+
+<style>
+    /*styling to hide the dropdown for color option*/
+    .select_hidden {
+        display: none;
+        margin-bottom: 0;
+      }
+      .product-form__input.product-form__input--dropdown {
+        margin-bottom: 0;
+      }
+      /*styling for input raios for color option*/
+  .swatches_row input[type='radio'] {
+    clip: rect(0, 0, 0, 0);
+    overflow: hidden;
+    position: absolute;
+    height: 1px;
+    widows: 1px;
+  }
+  .swatches_row input[type=radio]:checked+label {
+    background-color: rgb(var(--color-foreground));
+    color: rgb(var(--color-background));
+}
+{% comment %} color swatched styling {% endcomment %}
+.swatches_row input[type=radio]+label {
+    height: 40px;
+    width: 40px;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+  
+}
+.swatches_row input[type=radio]:checked+label {
+    box-shadow: 0 0 0 3px black;
+    transition: box-shadow  0.3s ease-in;
+  
+}
+.swatches_row input[type=radio]+label::before {
+    content: '';
+    border: 3px solid white;
+    border-radius: 50%;
+    z-index: 1;
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    
+  
+}
+</style>
+<div class="swatches_row">
+  {%- liquid
+    assign variants_available_arr = product.variants | map: 'available'
+    assign variants_option1_arr = product.variants | map: 'option1'
+    assign variants_option2_arr = product.variants | map: 'option2'
+    assign variants_option3_arr = product.variants | map: 'option3'
+
+    assign product_form_id = 'product-form-' | append: section.id
+  -%}
+
+  {%- for value in option.values -%}
+    {%- liquid
+      assign option_disabled = true
+
+      for option1_name in variants_option1_arr
+        case option.position
+          when 1
+            if variants_option1_arr[forloop.index0] == value and variants_available_arr[forloop.index0]
+              assign option_disabled = false
+            endif
+          when 2
+            if option1_name == product.selected_or_first_available_variant.option1 and variants_option2_arr[forloop.index0] == value and variants_available_arr[forloop.index0]
+              assign option_disabled = false
+            endif
+          when 3
+            if option1_name == product.selected_or_first_available_variant.option1 and variants_option2_arr[forloop.index0] == product.selected_or_first_available_variant.option2 and variants_option3_arr[forloop.index0] == value and variants_available_arr[forloop.index0]
+              assign option_disabled = false
+            endif
+        endcase
+      endfor
+    -%}
+    <input
+      type="radio"
+      class="radio-btn"
+      id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+      name="{{ option.name }}"
+      value="{{ value | escape }}"
+      form="{{ product_form_id }}"
+      {% if option.selected_value == value %}
+        checked
+      {% endif %}
+      {% if option_disabled %}
+        class="disabled"
+      {% endif %}
+    >
+    {% comment %} inline style is applied to set background with matching png from media to value {% endcomment %}
+    <label style="background-image: url({{ value |append: '.png' | file_url }});" for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+      {% comment %} {{ value -}} {% endcomment %}
+      <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
+    </label>
+  {%- endfor -%}
+</div>
+
+

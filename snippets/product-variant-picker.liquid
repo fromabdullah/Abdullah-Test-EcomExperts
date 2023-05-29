@@ -9,6 +9,8 @@
   Usage:
   {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
 {% endcomment %}
+{% assign update_url = false %}
+{% comment %} setting the update_url so that url does not save the selected variant and refresh resets the radio and select buttons {% endcomment %}
 {%- unless product.has_only_default_variant -%}
   {%- if block.settings.picker_type == 'button' -%}
     <variant-radios
@@ -47,10 +49,10 @@
           <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
             {{ option.name }}
           </label>
-          <div class="select">
+          <div class="select {%  if option.name == "Color" %}select_hidden{% endif %}">
             <select
               id="Option-{{ section.id }}-{{ forloop.index0 }}"
-              class="select__select"
+              class="select__select {% if option.name == 'Size' %}select_size {% elsif option.name == 'Color' %}select_color{% endif %}"
               name="options[{{ option.name | escape }}]"
               form="{{ product_form_id }}"
             >
@@ -59,6 +61,10 @@
             {% render 'icon-caret' %}
           </div>
         </div>
+        {% comment %} Color variant with swatches {% endcomment %}
+        {% if option.name == 'Color'  and block.settings.picker_type_color == "swatch" %}
+          {% render 'product-variant-custom', product: product, option: option, block: block %}
+        {% endif %}
       {%- endfor -%}
 
       <script type="application/json">
@@ -120,3 +126,5 @@
     </div>
   </div>
 </noscript>
+{% comment %} script to update hidden dropdown select value when color swatch is clicked  {% endcomment %}
+<script src="{{ 'swatches.js' | asset_url }}" defer="defer"></script>

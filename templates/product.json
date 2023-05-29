@@ -23,7 +23,8 @@
         "variant_picker": {
           "type": "variant_picker",
           "settings": {
-            "picker_type": "button"
+            "picker_type": "dropdown",
+            "picker_type_color": "swatch"
           }
         },
         "quantity_selector": {

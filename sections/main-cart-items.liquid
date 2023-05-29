@@ -23,7 +23,7 @@
   <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 {%- endunless -%}
 
-<cart-items class="page-width{% if cart == empty %} is-empty{% else %} section-{{ section.id }}-padding{% endif %}">
+<cart-items class="page-width{% if cart == empty %} is-empty{% else %} section-{{ section.id }}-padding{% endif %} custom_class_cart_gift_qty">
   <div class="title-wrapper-with-link">
     <h1 class="title title--primary">{{ 'sections.cart.title' | t }}</h1>
     <a href="{{ routes.all_products_collection_url }}" class="underlined-link">{{ 'general.continue_shopping' | t }}</a>
@@ -70,6 +70,16 @@
 
             <tbody>
               {%- for item in cart.items -%}
+                {% comment %} Check products (gift + normal) are in cart {% endcomment %}
+                {% if item.id == 45266557108503 %}
+                  <input type="hidden" class="array_gift_bag" name="bag" value="{{ item.index |plus: 1  }}">
+                {% elsif item.id == 45244161491223 %}
+                  <input type="hidden" class="array_gift_bag" name="gift" value="{{ item.index |plus: 1  }}">
+                  {% comment %} check gift quantity greater than 1 {% endcomment %}
+                  {% if item.quantity > 1 %}
+                    <input type="hidden" class="gift_qty_const" value="{{ item.index |plus: 1 }}">
+                  {% endif %}
+                {% endif %}
                 <tr class="cart-item" id="CartItem-{{ item.index | plus: 1 }}">
                   <td class="cart-item__media">
                     {% if item.image %}
@@ -223,18 +233,27 @@
                         {{ 'products.product.quantity.label' | t }}
                       </label>
                       <quantity-input class="quantity cart-quantity">
-                        <button class="quantity__button no-js-hidden" name="minus" type="button">
-                          <span class="visually-hidden">
-                            {{- 'products.product.quantity.decrease' | t: product: item.product.title | escape -}}
-                          </span>
-                          {% render 'icon-minus' %}
-                        </button>
+                        {% unless item.id == 45244161491223 %}
+                          <button
+                            class="quantity__button no-js-hidden"
+                            name="minus"
+                            type="button"
+                            {% if item.id == 45244161491223 %}
+                              disabled
+                            {% endif %}
+                          >
+                            <span class="visually-hidden">
+                              {{- 'products.product.quantity.decrease' | t: product: item.product.title | escape -}}
+                            </span>
+                            {% render 'icon-minus' %}
+                          </button>
+                        {% endunless %}
                         <input
                           class="quantity__input"
                           data-quantity-variant-id="{{ item.variant.id }}"
                           type="number"
                           name="updates[]"
-                          value="{{ item.quantity }}"
+                          value=" {{- item.quantity -}}"
                           {% # theme-check-disable %}
                           data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
                           min="{{ item.variant.quantity_rule.min }}"
@@ -247,12 +266,14 @@
                           id="Quantity-{{ item.index | plus: 1 }}"
                           data-index="{{ item.index | plus: 1 }}"
                         >
-                        <button class="quantity__button no-js-hidden" name="plus" type="button">
-                          <span class="visually-hidden">
-                            {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
-                          </span>
-                          {% render 'icon-plus' %}
-                        </button>
+                        {% unless item.id == 45244161491223 %}
+                          <button class="quantity__button no-js-hidden" name="plus" type="button">
+                            <span class="visually-hidden">
+                              {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
+                            </span>
+                            {% render 'icon-plus' %}
+                          </button>
+                        {% endunless %}
                       </quantity-input>
 
                       <cart-remove-button
