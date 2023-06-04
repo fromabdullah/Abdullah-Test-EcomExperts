@@ -8,6 +8,7 @@ class CartRemoveButton extends HTMLElement {
           ".custom_class_cart_gift_qty"
         );
         cart_gift_qty.updateQuantity(gift_qty_const.value, 1);
+        console.log("cart quantity");
       }
     };
     this.addEventListener("click", (event) => {
