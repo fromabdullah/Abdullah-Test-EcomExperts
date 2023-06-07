@@ -24,7 +24,7 @@
           "type": "variant_picker",
           "settings": {
             "picker_type": "dropdown",
-            "picker_type_color": "swatch"
+            "picker_type_color": "dropdown"
           }
         },
         "quantity_selector": {
